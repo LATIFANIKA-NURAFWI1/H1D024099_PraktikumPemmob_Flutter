@@ -22,7 +22,7 @@ class Queue<T> {
     print('Isi Queue paslon saat ini: $_items');
   }
 
-  // Getter untuk mengecek apakah antrean kosong
+  // Getter untuk mengecek apakah antrean kosong.
   bool get isEmpty => _items.isEmpty;
 }
 
