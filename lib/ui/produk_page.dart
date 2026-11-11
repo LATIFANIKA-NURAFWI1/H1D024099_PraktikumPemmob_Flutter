@@ -16,16 +16,19 @@ class _ProdukPageState extends State<ProdukPage> {
       appBar: AppBar(
         title: const Text('List Data Produk'),
         actions: [
-          GestureDetector(
-            child: const Icon(Icons.add),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ProdukForm(),
-                ),
-              );
-            },
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              child: const Icon(Icons.add),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProdukForm(),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
