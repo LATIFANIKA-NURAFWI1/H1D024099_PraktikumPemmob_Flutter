@@ -1,6 +1,6 @@
 # Praktikum Pemrograman Mobile - Flutter (`H1D024099`)
 
-Repository ini berisi hasil praktikum mata kuliah **Pemrograman Mobile** menggunakan framework **Flutter** (Modul 1–3).
+Repository ini berisi hasil praktikum mata kuliah **Pemrograman Mobile** menggunakan framework **Flutter** dan backend **CodeIgniter 4 RESTful API** (Modul 2, Modul 3, hingga Modul 4).
 
 ---
 
@@ -29,7 +29,7 @@ Pada Modul 2 dipelajari pembuatan tampilan dasar menggunakan `StatelessWidget` d
 
 | Hello World | Column Widget | Row Widget |
 | :---: | :---: | :---: |
-| ![Hello World](hello.png) | ![Column Widget](column.png) | ![Row Widget](row.png) |
+| ![Hello World](ss/hello.png) | ![Column Widget](ss/column.png) | ![Row Widget](ss/row.png) |
 
 ### 2. Form Produk, Detail Produk & List Data Produk
 
@@ -39,7 +39,7 @@ Pada Modul 2 dipelajari pembuatan tampilan dasar menggunakan `StatelessWidget` d
 
 | Form Produk | Detail Produk | List Data Produk |
 | :---: | :---: | :---: |
-| ![Form Produk](formproduk.png) | ![Detail Produk](detail.png) | ![List Data Produk](dataproduk.png) |
+| ![Form Produk](ss/formproduk.png) | ![Detail Produk](ss/detail.png) | ![List Data Produk](ss/dataproduk.png) |
 
 ---
 
@@ -54,42 +54,172 @@ Pada Modul 3 ditambahkan sistem autentikasi login, penyimpanan data pengguna di 
 
 | Login Page | Home Page | Side Menu |
 | :---: | :---: | :---: |
-| ![Login Page](login.png) | ![Home Page](homepage.png) | ![Side Menu](sidemenu.png) |
+| ![Login Page](ss/login.png) | ![Home Page](ss/homepage.png) | ![Side Menu](ss/sidemenu.png) |
 
-### Daftar Named Routes (`lib/main.dart`)
+---
 
-| Route | Halaman | File |
-| :--- | :--- | :--- |
-| `/` | `LoginPage` | `lib/login_page.dart` |
-| `/home` | `HomePage` | `lib/home_page.dart` |
-| `/about` | `AboutPage` | `lib/about_page.dart` |
-| `/produk` | `ProdukPage` | `lib/ui/produk_page.dart` |
-| `/produk-form` | `ProdukForm` | `lib/ui/produk_form.dart` |
-| `/produk-detail` | `ProdukDetail` | `lib/ui/produk_detail.dart` |
-| `/hello-world` | `HelloWorld` | `lib/hello_world.dart` |
-| `/column-widget` | `ColumnWidget` | `lib/column_widget.dart` |
-| `/row-widget` | `RowWidget` | `lib/row_widget.dart` |
+## Modul 4: Operasi CRUD dengan RESTful API CodeIgniter 4 (Toko Kita)
+
+Pada Modul 4, aplikasi dikembangkan menjadi aplikasi toko mobile bernama **`tokokita`** yang terhubung secara penuh ke backend **RESTful API CodeIgniter 4 (`toko-api`)** dan database **MySQL**. Fitur yang diimplementasikan mencakup registrasi pengguna, login dengan token autentikasi, penyimpanan token sesi via `SharedPreferences`, serta operasi CRUD (*Create, Read, Update, Delete*) data produk secara real-time.
+
+### Arsitektur & Spesifikasi Teknis
+
+1. **Backend RESTful API (CodeIgniter 4 & MySQL)**:
+   - Database: `toko_api` (tabel: `member`, `member_token`, `produk`).
+   - Format Respon Standar: `{"code": integer, "status": boolean, "data": mixed}`.
+   - Endpoint:
+     - `POST /registrasi`: Pendaftaran akun member baru.
+     - `POST /login`: Autentikasi member dan pengembalian token autentikasi.
+     - `GET /produk`: Mengambil seluruh daftar produk dari database.
+     - `POST /produk`: Menambahkan produk baru ke database.
+     - `GET /produk/{id}`: Menampilkan detail produk berdasarkan ID.
+     - `PUT /produk/{id}`: Memperbarui data produk berdasarkan ID.
+     - `DELETE /produk/{id}`: Menghapus data produk berdasarkan ID.
+
+2. **Frontend Flutter (`tokokita`)**:
+   - **BLoC / Service Pattern**: Pemisahan logika bisnis dan panggilan API (`lib/bloc/`).
+   - **HTTP Client Helper (`lib/helpers/api.dart`)**: Mendukung method `GET`, `POST`, `PUT`, `DELETE` dengan header JSON & token bearer serta penanganan error (`AppException`).
+   - **Session Management (`lib/helpers/user_info.dart`)**: Menyimpan `token` dan `userID` secara persisten menggunakan `shared_preferences`.
+   - **Type-Casting Resilience**: Penanganan aman konversi tipe data MySQLi (misal `id` dan `harga` bertipe `String` di-parse ke `int`).
+   - **Dialog Feedback**: Tampilan `SuccessDialog` dan `WarningDialog` untuk setiap aksi.
+
+---
+
+### Alur Fitur & Dokumentasi Screenshot Modul 4
+
+#### 1. Registrasi Akun Member
+Pengguna mendaftarkan akun baru dengan Nama, Email unik, Password (minimal 6 karakter), dan Konfirmasi Password. Jika valid dan berhasil, muncul notifikasi sukses dan pengguna diarahkan ke halaman login.
+
+| Form Registrasi | Dialog Registrasi Sukses |
+| :---: | :---: |
+| ![Form Registrasi](ss/4regist.png) | ![Registrasi Sukses](ss/4registsukses.png) |
+
+#### 2. Autentikasi Login & Sesi Pengguna
+Pengguna melakukan login menggunakan email dan password yang terdaftar. Token autentikasi disimpan di `SharedPreferences` sehingga pengguna tetap dalam kondisi login saat aplikasi dibuka kembali. Pada menu drawer terdapat opsi **Logout** untuk menghapus sesi dan kembali ke halaman login.
+
+| Form Login Toko Kita | Side Menu (Drawer Logout) |
+| :---: | :---: |
+| ![Login Toko Kita](ss/4login2.png) | ![Side Menu Logout](ss/4side.png) |
+
+#### 3. Read Data (List Produk)
+Halaman utama menampilkan daftar produk dari API secara dinamis menggunakan `FutureBuilder`. Jika database masih kosong, ditampilkan indikator *"Tidak ada data produk"*. Ketika data sudah ditambahkan, daftar produk ditampilkan dalam bentuk `Card` dan `ListTile`.
+
+| List Produk Awal (Kosong) | List Produk Terisi |
+| :---: | :---: |
+| ![List Produk Kosong](ss/4produk.png) | ![List Produk Terisi](ss/4list.png) |
+
+#### 4. Create Data (Tambah Produk)
+Tombol `+` pada `AppBar` membuka halaman form tambah produk. Setelah field `Kode Produk`, `Nama Produk`, dan `Harga` diisi dan tombol **SIMPAN** ditekan, data dikirim ke API via `POST /produk` dan memunculkan dialog sukses.
+
+| Form Tambah Produk | Dialog Tambah Sukses |
+| :---: | :---: |
+| ![Form Tambah Produk](ss/4tambah.png) | ![Tambah Sukses](ss/4tambahsukses.png) |
+
+#### 5. Detail & Update Data (Ubah Produk)
+Memilih item produk akan membuka halaman **Detail Produk** yang memuat informasi lengkap serta tombol **EDIT** dan **DELETE**. Menekan tombol **EDIT** membuka form ubah produk, dan data yang diperbarui akan disimpan ke API via `PUT /produk/{id}`.
+
+| Detail Produk Awal | Dialog Ubah Sukses | Detail Produk Terupdate |
+| :---: | :---: | :---: |
+| ![Detail Produk](ss/4detail.png) | ![Ubah Sukses](ss/4ubahsukses.png) | ![Detail Baru](ss/4detailbaru.png) |
+
+#### 6. Delete Data (Hapus Produk)
+Menekan tombol **DELETE** pada detail produk memicu dialog konfirmasi *"Yakin ingin menghapus data ini?"*. Jika dipilih tombol **Ya**, data dihapus dari database via `DELETE /produk/{id}` dan halaman kembali ke daftar produk yang sudah ter-update.
+
+| Dialog Konfirmasi Hapus | List Produk Setelah Dihapus |
+| :---: | :---: |
+| ![Konfirmasi Hapus](ss/4konfirhapus.png) | ![List Setelah Hapus](ss/4hapus.png) |
+
+---
+
+### Struktur Folder Proyek
+
+```text
+flutter1/
+├── lib/
+│   ├── bloc/
+│   │   ├── login_bloc.dart
+│   │   ├── logout_bloc.dart
+│   │   ├── produk_bloc.dart
+│   │   └── registrasi_bloc.dart
+│   ├── helpers/
+│   │   ├── api.dart
+│   │   ├── api_url.dart
+│   │   ├── app_exception.dart
+│   │   └── user_info.dart
+│   ├── model/
+│   │   ├── login.dart
+│   │   ├── produk.dart
+│   │   └── registrasi.dart
+│   ├── ui/
+│   │   ├── login_page.dart
+│   │   ├── produk_detail.dart
+│   │   ├── produk_form.dart
+│   │   ├── produk_page.dart
+│   │   └── registrasi_page.dart
+│   ├── widget/
+│   │   ├── success_dialog.dart
+│   │   └── warning_dialog.dart
+│   ├── about_page.dart
+│   ├── column_widget.dart
+│   ├── hello_world.dart
+│   ├── home_page.dart
+│   ├── login_page.dart
+│   ├── main.dart
+│   ├── row_widget.dart
+│   └── sidemenu.dart
+├── ss/
+│   ├── 4detail.png
+│   ├── 4detailbaru.png
+│   ├── 4hapus.png
+│   ├── 4konfirhapus.png
+│   ├── 4list.png
+│   ├── 4login2.png
+│   ├── 4produk.png
+│   ├── 4regist.png
+│   ├── 4registsukses.png
+│   ├── 4side.png
+│   ├── 4tambah.png
+│   ├── 4tambahsukses.png
+│   ├── 4ubahsukses.png
+│   ├── column.png
+│   ├── dataproduk.png
+│   ├── detail.png
+│   ├── formproduk.png
+│   ├── hello.png
+│   ├── homepage.png
+│   ├── login.png
+│   ├── row.png
+│   └── sidemenu.png
+└── pubspec.yaml
+```
 
 ---
 
 ## Cara Menjalankan Aplikasi
 
-1. Pastikan dependency sudah terpasang:
+1. **Jalankan Web Server & Database**:
+   - Pastikan Laragon atau XAMPP aktif dengan Apache & MySQL berjalan.
+   - Pastikan proyek backend `toko-api` berada di `htdocs` (XAMPP) atau `www` (Laragon).
+2. **Pasang Dependensi**:
    ```bash
    flutter pub get
    ```
-2. Jalankan aplikasi (misal di Chrome atau Emulator):
-   ```bash
-   flutter run
-   ```
-3. Gunakan kredensial default pada halaman Login:
-   - **Username:** `admin`
-   - **Password:** `admin`
+3. **Jalankan Aplikasi Flutter**:
+   - Untuk Browser Chrome:
+     ```bash
+     flutter run -d chrome
+     ```
+   - Untuk Android Emulator / Real Device:
+     ```bash
+     flutter run
+     ```
+     *(Catatan: `ApiUrl.baseUrl` otomatis mendeteksi platform Chrome / Android Emulator).*
 
-## Pengujian
+## Pengujian & Analisis Kode
 
-Jalankan analisis statis dan widget test:
+Jalankan pengujian statis dan unit test:
 ```bash
 flutter analyze
 flutter test
 ```
+*Hasil analisis: `No issues found!`, semua widget test dan parsing model lulus 100%.*
